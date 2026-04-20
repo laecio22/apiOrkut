@@ -57,6 +57,27 @@ app.get("/", (req, res) => {
   res.send("<h1>Rede Social!</h1>");
 });
 
+app.post('/usuarios', async(req, res) => {
+  try {
+    const {nome, email, senha} = req.body
+     const resultado =  await pool.query(`
+        INSERT INTO usuarios (nome, email, senha)
+        VALUES($1,$2, $3)
+        RETURNING *
+     `, [nome, senha, email])
+
+     res.status(201).json({
+      mensagem: 'Usuário  criado  com  sucesso!',
+      usuario: resultado.rows[0]
+     })
+  } catch (error) {
+    
+    res.status(500).json({
+      erro: "Erro ao criar  usuário"
+    })
+  }
+})
+
 //rota  listar posts
 app.get("/posts", async (req, res) => {
   try {
