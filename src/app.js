@@ -4,7 +4,7 @@ const pool = require("./config/db");
 const validarPost = require("./validacao/post");
 const auth = require("./auth/authLogin");
 const jwt = require("jsonwebtoken");
-const validarUsuario = require("./validacao/usuario")
+const validarUsuario = require("./validacao/usuario");
 
 const app = express();
 
@@ -82,23 +82,20 @@ app.post("/usuarios", validarUsuario, async (req, res) => {
   }
 });
 
-//rota  listar  usuarios 
-app.get('/usuarios', async(req, res) => {
+//rota  listar  usuarios
+app.get("/usuarios", async (req, res) => {
   try {
-    const  resultado = await  pool.query(`
+    const resultado = await pool.query(`
         SELECT * FROM usuarios
-      `)
+      `);
 
-      res.json(resultado.rows)
-    
+    res.json(resultado.rows);
   } catch (error) {
-     res.status(500).json({
-      erro: "Erro ao  buscar  usuários"
-     })
+    res.status(500).json({
+      erro: "Erro ao  buscar  usuários",
+    });
   }
-
-    
-})
+});
 
 //rota  listar posts
 app.get("/posts", async (req, res) => {
@@ -150,10 +147,23 @@ app.post("/posts", auth, validarPost, async (req, res) => {
 });
 
 //rota  atualizar  post
-app.put("/posts/:id", validarPost, async (req, res) => {
+app.put("/posts/:id", auth, validarPost, async (req, res) => {
   try {
     const { id } = req.params;
     const { titulo, conteudo } = req.body;
+    const post = await pool.query(`SELECT * FROM posts WHERE id=$1`);
+
+    if (post.rows.length === 0) {
+      return res.status(404).json({
+        mensagem: "post  não  encontrado",
+      });
+    }
+
+    if (post.rows[0].usuario_id !== req.usuario_id) {
+      return res.status(403).json({
+        mensagem: "Sem permissão",
+      });
+    }
     //comando sql  para atualizar  um post
     const resultado = await pool.query(
       `
@@ -175,9 +185,23 @@ app.put("/posts/:id", validarPost, async (req, res) => {
 
 //rota  deletar  post
 
-app.delete("/posts/:id", async (req, res) => {
+app.delete("/posts/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
+    const post = await pool.query(`SELECT * FROM posts WHERE id=$1`);
+
+    if (post.rows.length === 0) {
+      return res.status(404).json({
+        mensagem: "post  não  encontrado",
+      });
+    }
+
+    if (post.rows[0].usuario_id !== req.usuario_id) {
+      return res.status(403).json({
+        mensagem: "Sem permissão",
+      });
+    }
+
     const resultado = await pool.query(
       `
            DELETE FROM post WHERE id=$1
