@@ -82,6 +82,24 @@ app.post("/usuarios", validarUsuario, async (req, res) => {
   }
 });
 
+//rota  listar  usuarios 
+app.get('/usuarios', async(req, res) => {
+  try {
+    const  resultado = await  pool.query(`
+        SELECT * FROM usuarios
+      `)
+
+      res.json(resultado.rows)
+    
+  } catch (error) {
+     res.status(500).json({
+      erro: "Erro ao  buscar  usuários"
+     })
+  }
+
+    
+})
+
 //rota  listar posts
 app.get("/posts", async (req, res) => {
   try {
