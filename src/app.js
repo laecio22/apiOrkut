@@ -1,3 +1,5 @@
+-- Active: 1774474563011@@127.0.0.1@5432
+
 require("dotenv").config();
 const express = require("express");
 const pool = require("./config/db");
@@ -5,6 +7,7 @@ const validarPost = require("./validacao/post");
 const auth = require("./auth/authLogin");
 const jwt = require("jsonwebtoken");
 const validarUsuario = require("./validacao/usuario");
+const bcrypt = require("bcrypt");
 
 const app = express();
 
@@ -24,6 +27,14 @@ app.post("/login", async (req, res) => {
     if (usuario.rows.length === 0) {
       return res.status(400).json({
         mensagem: "Usuário  não  encontrado",
+      });
+    }
+
+    const senhaValida = await bcrypt.compare(senha, usuarios.rows[0].senha);
+
+    if (!senhaValida) {
+      return res.status(400).json({
+        mensagem: "Senha  inválida",
       });
     }
 
@@ -62,13 +73,14 @@ app.get("/", (req, res) => {
 app.post("/usuarios", validarUsuario, async (req, res) => {
   try {
     const { nome, email, senha } = req.body;
+    const senhaHasheada = await bcrypt.hash(senha, 10);
     const resultado = await pool.query(
       `
         INSERT INTO usuarios (nome, email, senha)
         VALUES($1,$2, $3)
         RETURNING *
      `,
-      [nome, email, senha],
+      [nome, email, senhaHasheada],
     );
 
     res.status(201).json({
