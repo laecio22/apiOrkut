@@ -1,4 +1,3 @@
--- Active: 1774474563011@@127.0.0.1@5432
 
 require("dotenv").config();
 const express = require("express");
