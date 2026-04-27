@@ -1,4 +1,3 @@
-
 require("dotenv").config();
 const express = require("express");
 const pool = require("./config/db");
@@ -29,15 +28,9 @@ app.post("/login", async (req, res) => {
       });
     }
 
-    const senhaValida = await bcrypt.compare(senha, usuarios.rows[0].senha);
+    const senhaValida = await bcrypt.compare(senha, usuario.rows[0].senha);    
 
     if (!senhaValida) {
-      return res.status(400).json({
-        mensagem: "Senha  inválida",
-      });
-    }
-
-    if (senha !== usuario.rows[0].senha) {
       return res.status(400).json({
         mensagem: "Senha  inválida",
       });
