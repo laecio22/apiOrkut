@@ -6,10 +6,12 @@ const auth = require("./auth/authLogin");
 const jwt = require("jsonwebtoken");
 const validarUsuario = require("./validacao/usuario");
 const bcrypt = require("bcrypt");
+const cors = require("cors");
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 //rota login
 app.post("/login", async (req, res) => {
@@ -28,7 +30,7 @@ app.post("/login", async (req, res) => {
       });
     }
 
-    const senhaValida = await bcrypt.compare(senha, usuario.rows[0].senha);    
+    const senhaValida = await bcrypt.compare(senha, usuario.rows[0].senha);
 
     if (!senhaValida) {
       return res.status(400).json({
@@ -44,13 +46,10 @@ app.post("/login", async (req, res) => {
       { expiresIn: "1h" },
     );
 
-    console.log("login secreto", process.env.JWT_KEY_SECRET);
-
     res.json({
       token,
     });
   } catch (error) {
-    console.log("erro no login", error);
     res.status(500).json({
       mensagem: "Erro  interno do  servidor",
     });
