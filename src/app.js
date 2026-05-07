@@ -89,7 +89,7 @@ app.post("/usuarios", validarUsuario, async (req, res) => {
 app.get("/usuarios", async (req, res) => {
   try {
     const resultado = await pool.query(`
-        SELECT * FROM usuarios
+        SELECT nome, email FROM usuarios
       `);
 
     res.json(resultado.rows);
