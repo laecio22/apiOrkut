@@ -119,8 +119,9 @@ app.get("/posts", async (req, res) => {
 
     res.json(resultado.rows);
   } catch (error) {
+    // console.log(error, 'erro')
     res.status(500).json({
-      erro: "Erro  ao buscar   postagens",
+      erro: `Erro ao  buscar  postagens ${error}`,
     });
   }
 });
@@ -218,6 +219,7 @@ app.delete("/posts/:id", auth, async (req, res) => {
       post: resultado.rows[0],
     });
   } catch (error) {
+    console.log(error, "erro");
     res.status(500).json({
       erro: "Não  foi possível  deletar  o  post",
       post: resultado.rows[0],
