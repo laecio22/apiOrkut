@@ -155,7 +155,7 @@ app.put("/posts/:id", auth, validarPost, async (req, res) => {
   try {
     const { id } = req.params;
     const { titulo, conteudo } = req.body;
-    const post = await pool.query(`SELECT * FROM posts WHERE id=$1`);
+    const post = await pool.query(`SELECT * FROM post WHERE id=$1`, [id]);
 
     if (post.rows.length === 0) {
       return res.status(404).json({
@@ -163,7 +163,7 @@ app.put("/posts/:id", auth, validarPost, async (req, res) => {
       });
     }
 
-    if (post.rows[0].usuario_id !== req.usuario_id) {
+    if (post.rows[0].usuario_id !== req.usuario.id) {
       return res.status(403).json({
         mensagem: "Sem permissão",
       });
@@ -181,6 +181,7 @@ app.put("/posts/:id", auth, validarPost, async (req, res) => {
       post: resultado.rows[0],
     });
   } catch (error) {
+    console.log(error, "erro");
     res.status(500).json({
       erro: "Não  foi  possível  atualizar  o post",
     });
@@ -192,7 +193,7 @@ app.put("/posts/:id", auth, validarPost, async (req, res) => {
 app.delete("/posts/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
-    const post = await pool.query(`SELECT * FROM posts WHERE id=$1`);
+    const post = await pool.query(`SELECT * FROM post WHERE id=$1`, [id]);
 
     if (post.rows.length === 0) {
       return res.status(404).json({
@@ -200,7 +201,7 @@ app.delete("/posts/:id", auth, async (req, res) => {
       });
     }
 
-    if (post.rows[0].usuario_id !== req.usuario_id) {
+    if (post.rows[0].usuario_id !== req.usuario.id) {
       return res.status(403).json({
         mensagem: "Sem permissão",
       });
@@ -222,7 +223,7 @@ app.delete("/posts/:id", auth, async (req, res) => {
     console.log(error, "erro");
     res.status(500).json({
       erro: "Não  foi possível  deletar  o  post",
-      post: resultado.rows[0],
+      // post: resultado.rows[0],
     });
   }
 });
